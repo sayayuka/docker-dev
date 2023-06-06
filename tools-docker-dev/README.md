@@ -1,12 +1,10 @@
 # docker-dev
 Development middleware docker compose yaml files
 
-* MYSQL
+* AList
+* Portainer
+* MySQL
 * PostgreSQL
-* HANA
+* HANA2
 * Consul
 * Redis
-* Zookeeper
-* Kafka
-* Elasticsearch
-* Kibana
