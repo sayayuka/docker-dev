@@ -1,0 +1,126 @@
+version: "3.8"
+
+services:
+  ## alist-aria2
+  ## docker run -d -p 5244:5244 --name=alist --restart=always -v /share/Container/alist:/opt/alist/data -e PUID=0 -e PGID=0 -e UMASK=022 xhofe/alist-aria2:latest
+  alist:
+    container_name: alist
+    restart: always
+    volumes:
+        - /Users/I312313/Developer/docker/alist:/opt/alist/data
+    ports:
+        - 5244:5244
+    environment:
+        - PUID=0
+        - PGID=0
+        - UMASK=022
+    image: xhofe/alist-aria2:latest
+    networks:
+      - default
+  ## Portainer
+  ## docker run -d -p 9000:9000 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /share/Container/portainer:/data portainer/portainer-ce:latest
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Users/I312313/Developer/docker/portainer:/data
+    networks:
+      - default
+  ## adguardhome
+  adguardhome:
+    container_name: adguardhome
+    image: adguard/adguardhome:latest
+    restart: unless-stopped
+    environment:
+        - TZ=Asia/Shanghai
+        - PUID=1000
+        - PGID=100
+        - HTTP_PROXY=http://192.168.31.20:7890
+        - HTTPS_PROXY=http://192.168.31.20:7890
+    ports:
+      - 55:53/tcp
+      - 55:53/udp
+      - 71:67/udp
+      - 72:68/udp
+      - 3100:80/tcp
+      - 443:443/tcp
+      - 443:443/udp
+      - 3000:3000/tcp
+      - 853:853/tcp
+      - 784:784/udp
+      - 853:853/udp
+      - 8853:8853/udp
+      - 5443:5443/tcp
+      - 5443:5443/udp
+    volumes:
+      - /share/Library/adguardhome/work:/opt/adguardhome/work
+      - /share/Library/adguardhome/conf:/opt/adguardhome/conf
+    networks:
+      - default
+  ## nginx-proxy-manager
+  npm:
+    container_name: npm
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    environment:
+        - TZ=Asia/Shanghai
+        - PUID=1000
+        - PGID=100
+        - HTTP_PROXY=http://192.168.31.20:7890
+        - HTTPS_PROXY=http://192.168.31.20:7890
+    ports:
+      - '20080:80'
+      - '20081:81'
+      - '20443:443'
+    volumes:
+      - /share/Container/npm/data:/data
+      - /share/Container/npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - default
+  ## navidrome
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    environment:
+        - ND_SCANNER_EXTRACTOR=ffmpeg
+        - PND_ENABLETRANSCODINGCONFIGGID=true
+        - ND_ENABLESHARING=true
+        - ND_SCANSCHEDULE=1h
+    ports:
+      - '4533:4533'
+    volumes:
+      - /share/Container/navidrome/data:/data
+      - /share/Library/navidrome/music:/music
+    networks:
+      - default
+  ## vaultwarden
+  vaultwarden:
+    container_name: vaultwarden
+    image: vaultwarden/server:latest
+    restart: unless-stopped
+    ports:
+      - 10080:80
+    volumes:
+      - /share/Container/vaultwarden/data:/data
+    networks:
+      - default
+  ## music-tag-web
+  music-tag-web:
+    container_name: music-tag-web
+    image: xhongc/music_tag_web:latest
+    restart: unless-stopped
+    ports:
+      - 8001:8001
+    volumes:
+      - /share/Container/music-tag-web/media:/app/media
+      - /share/Container/music-tag-web/data:/app/data
+    networks:
+      - default
+networks:
+  default:
+    driver: bridge
